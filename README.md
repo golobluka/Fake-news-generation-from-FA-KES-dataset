@@ -1,17 +1,15 @@
 # Fake-news-generation-from-FAK-ES-dataset
-This is the repository of the work I did while working as a student in IJS (Inštitut Jožeta Štefana). The intent is to use LLMs to generate false synthetic news articles, by using language understanding of LLMs.
+This repository contains the work I conducted as a student at IJS (Inštitut Jožeta Štefana). The goal was to utilize large language models (LLMs) to produce synthetic news articles that are falsely constructed, leveraging the language comprehension capabilities of LLMs.
 
+The articles are created from FA-KES, a dataset focused on fake news related to the Syrian war. Both the synthetic data and additional comments can be found in the Report_final file.
 
-The articles are generated from FA-KES, a fake news dataset about the Syrian war. Here synthetic data is made public, and so are the extended comments in the file `Report_final`.
+Due to privacy concerns regarding the release of my project's source code, the Python files containing prompts and foundational code are currently not available; only the results are accessible. This situation may change in the future, but for the time being, those who require the main source code must reach out to me directly.
 
-There are some privacy issues related to publicizing my project's source code. Because of this, Python files that provide prompts and basic source code are *not available*, and only the results are present. This might change in the future, but for now, everybody who wants the main source code needs to contact me.
+The code encompasses three primary steps:
 
-The articles are generated from FA-KES, a fake news dataset about the Syrian war.
+    - Article generation, where the data is saved into the changed_articles folder. This folder contains the original articles, their modified versions, and fact tables for the data generated in various ways.
+   - Detection, which employs a technique known as fact verification, with results being saved in saved_results.
+   - Result analysis from the detection process, which is performed in analysis.ipynb.
 
-The three basic steps in this code are:
-
-    Article generation from which we save the data into the folder changed_articles. Here there are the original and transformed articles and their facts tables for data, generated in different ways.
-    Detection (which uses the method called fact verification) that saves the results in saved_results.
-    Analysis of results from detection. This is done in analysis.ipynb.
 
 
