@@ -8,8 +8,8 @@ Due to privacy concerns regarding the release of my project's source code, the P
 The code encompasses three primary steps:
 
     - Article generation, where the data is saved into the changed_articles folder. This folder contains the original articles, their modified versions, and fact tables for the data generated in various ways.
-   - Detection, which employs a technique known as fact verification, with results being saved in saved_results.
-   - Result analysis from the detection process, which is performed in analysis.ipynb.
+    - Detection, which employs a technique known as fact verification, with results being saved in saved_results.
+    - Result analysis from the detection process, which is performed in analysis.ipynb.
 
 
 
