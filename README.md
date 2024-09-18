@@ -1,13 +1,15 @@
 # Fake-news-generation-from-FAK-ES-dataset
-This repository contains the work I conducted as a student at IJS (Inštitut Jožeta Štefana). The goal was to utilize large language models (LLMs) to produce synthetic news articles that are falsely constructed, leveraging the language comprehension capabilities of LLMs.
+This is the work I did while working as a student in IJS (Inštitut Jožeta Štefana). The intent is to use LLMs to generate false synthetic news articles, by using language understanding of LLMs.
 
-The articles are created from FA-KES, a dataset focused on fake news related to the Syrian war. Both the synthetic data and additional comments can be found in the Report_final file.
+There are some privacy issues related to publicizing my project's source code. Because of this, **two Python files that provide prompts and basic source code were removed** (the files `generating_new_article.py` and `fake_datector.py`) , and only the results are present. This might change in the future, but for now, everybody who wants the main source code needs to contact me.
 
-The code encompasses three primary steps:
+The articles are generated from FA-KES, a fake news dataset about the Syrian war. 
 
-- Article generation, where the data is saved into the changed_articles folder. This folder contains the original articles, their modified versions, and fact tables for the data generated in various ways.
-- Detection, which employs a technique known as fact verification, with results being saved in saved_results.
-- Result analysis from the detection process, which is performed in analysis.ipynb.
+The three basic steps in this code are:
+
+1) Article generation from which we save the data into the folder `changed_articles`. Here there are the original and transformed articles and their facts tables for data, generated in different ways.
+2) Detection (which uses the method called fact verification) that saves the results in `saved_results`.
+3) Analysis of results from detection. This is done in `analysis.ipynb`.
 
 
-
+In the folder `saved_prints` I saved some of the printed output, that gives the outputs of LLMs. I used these prints to understand how the code works. It is hard to understand if you do not have the source code
