@@ -1,20 +1,83 @@
-# Facts for fake article generation
-#_________________________________________________________________
+import sys
+import os
+import random
+import ollama
+import json
+import re
+import pandas as pd
+import General_news_labeling
 
-CHANGES_AGGRESSIVE = """{description_of_fact} You need to choose totally different facts for the values of \"{name_of_fact}\". 
+current_path = os.getcwd()  # Get the current working directory
+parent_directory = os.path.dirname(current_path)
+
+
+# Print to debug the parent directory
+print("Parent Directory:", parent_directory)
+
+sys.path.append(parent_directory)
+
+# Attempted Import
+try:
+    from constants import (
+        GENERAL_NAME_OF_FACT, 
+        GENERAL_DESCRIPTION_OF_FACT, 
+        GENERAL_COMMON_EXAMPLES,
+        testing_dictionary
+    )
+    print("Imported Constants Successfully.")
+except ImportError as e:
+    print("ImportError:", e)
+    # Print available attributes from the constants module
+    import constants
+    print("Available Constants:", dir(constants))
+    raise  # Raise the error after printing
+
+
+
+GENERAL_CHANGES_AGGRESSIVE = """{description_of_fact} You need to choose totally different facts for the values of \"{name_of_fact}\". 
             Changed values must bear different meaning.
              Common examples are {common_examples}."""
 
-TOPICS = [{'Name of fact': 'Name of casualty or group', 'Description of fact': ' represents the casualties names or the names of the groups associated with the casualties.', 'Common examples': 'men, solders, children'},
-{'Name of fact': 'Gender or age group', 'Description of fact': ' of casualty indicates if the casualties are male or female, or specify their age group .', 'Common examples': 'Male, Female, Child, Adult, Senior'},
-{'Name of fact': 'Cause of death', 'Description of fact': ' specifies the weapons used by the aggressor (e.g., shooting, shelling, chemical weapons, etc.)', 'Common examples': 'Shooting, Shelling, Chemical weapons'},
-{'Name of fact': 'Type', 'Description of fact': ' of casualty classifies the casualties as a civilian or non-civilian (e.g., military personnel are non-civilians).', 'Common examples': 'Civilian, Non-civilian'},
-{'Name of fact': 'Actor', 'Description of fact': ' identifies the actors responsible for the incident, such as rebel groups, Russian forces, ISIS, the Syrian army, U.S. military, etc.', 'Common examples': 'Rebel groups, Russian forces, ISIS'},
-{'Name of fact': 'Place of death', 'Description of fact': ' specifies the locations where the attacks occurred (e.g., Aleppo, Damascus, Homs, Idlib, Raqqa, Daraa, Deir ez-Zor, Qamishli, Palmyra, etc.).', 'Common examples': 'Aleppo, Damascus, Homs'},
-{'Name of fact': 'Date of death', 'Description of fact': ' provides the dates when the attacks occurred.', 'Common examples': '2021-01-01, 2022-06-15'}
+
+GENERAL_TOPICS = [
+    {
+        GENERAL_NAME_OF_FACT: 'Name of casualty or group', 
+        GENERAL_DESCRIPTION_OF_FACT: ' represents the casualties names or the names of the groups associated with the casualties.', 
+        GENERAL_COMMON_EXAMPLES: 'men, soldiers, children'
+    },
+    {
+        GENERAL_NAME_OF_FACT: 'Gender or age group', 
+        GENERAL_DESCRIPTION_OF_FACT: ' of casualty indicates if the casualties are male or female, or specify their age group .', 
+        GENERAL_COMMON_EXAMPLES: 'Male, Female, Child, Adult, Senior'
+    },
+    {
+        GENERAL_NAME_OF_FACT: 'Cause of death', 
+        GENERAL_DESCRIPTION_OF_FACT: ' specifies the weapons used by the aggressor (e.g., shooting, shelling, chemical weapons, etc.)', 
+        GENERAL_COMMON_EXAMPLES: 'Shooting, Shelling, Chemical weapons'
+    },
+    {
+        GENERAL_NAME_OF_FACT: 'Type', 
+        GENERAL_DESCRIPTION_OF_FACT: ' of casualty classifies the casualties as a civilian or non-civilian (e.g., military personnel are non-civilians).', 
+        GENERAL_COMMON_EXAMPLES: 'Civilian, Non-civilian'
+    },
+    {
+        GENERAL_NAME_OF_FACT: 'Actor', 
+        GENERAL_DESCRIPTION_OF_FACT: ' identifies the actors responsible for the incident, such as rebel groups, Russian forces, ISIS, the Syrian army, U.S. military, etc.', 
+        GENERAL_COMMON_EXAMPLES: 'Rebel groups, Russian forces, ISIS'
+    },
+    {
+        GENERAL_NAME_OF_FACT: 'Place of death', 
+        GENERAL_DESCRIPTION_OF_FACT: ' specifies the locations where the attacks occurred (e.g., Aleppo, Damascus, Homs, Idlib, Raqqa, Daraa, Deir ez-Zor, Qamishli, Palmyra, etc.).', 
+        GENERAL_COMMON_EXAMPLES: 'Aleppo, Damascus, Homs'
+    },
+    {
+        GENERAL_NAME_OF_FACT: 'Date of death', 
+        GENERAL_DESCRIPTION_OF_FACT: ' provides the dates when the attacks occurred.', 
+        GENERAL_COMMON_EXAMPLES: '2021-01-01, 2022-06-15'
+    }
 ]
 
-prompt_fact_extraction = """You are a journalist tasked with analyzing an article that reports on casualties related to the war in Syria. Your goal is to extract specific information regarding casualties mentioned in the article.
+GENERAL_PROMPT_FACT_EXTRACTION = """You are a journalist tasked with analyzing an article that reports on casualties related to the war in Syria. Your goal is to extract specific information regarding casualties mentioned in the article.
 
     Please extract the following details of casualties in the news in JSON format.
     {{
@@ -27,8 +90,6 @@ prompt_fact_extraction = """You are a journalist tasked with analyzing an articl
         "Date of death": Provide the dates when the attacks occurred.
     }}
 
-    
-
     BEGINNING OF THE ARTICLE
     {article}
     END OF THE ARTICLE
@@ -38,7 +99,7 @@ prompt_fact_extraction = """You are a journalist tasked with analyzing an articl
 
 GENERAL_INFORMATION = "FAK-ES is a set of articles from Syrian war."
 
-prompt_for_one_by_one_fact_extraction_concise_version = """You are an journalist with news articles. {general_information} Here is an article:
+GENERAL_PROMPT_FOR_ONE_BY_ONE_FACT_EXTRACTION_CONCISE_VERSION = """You are an journalist with news articles. {general_information} Here is an article:
     BEGINNING OF THE ARTICLE
     {article}
     END OF THE ARTICLE
@@ -49,7 +110,7 @@ prompt_for_one_by_one_fact_extraction_concise_version = """You are an journalist
     END OF FACTS
     """
 
-light_paraphrase_prompt = """
+GENERAL_LIGHT_PARAPHRASE_PROMPT = """
     Below is an article about an event during the Syrian war from 2015 to 2017:
 
     {article}
@@ -62,13 +123,13 @@ light_paraphrase_prompt = """
 
     {change}
 
-    Use iformation from JSON format except for the changed indoemation to create lightly paraphrased article. Make sure that all the information in the article is included. Ensure that the generated article is coherent. Print the updated JSON data as well, using double quotes and not single quotes. Do not provide any additional information except for the changed article and the changed JSON dataset.
+    Use information from JSON format except for the changed information to create lightly paraphrased article. Make sure that all the information in the article is included. Ensure that the generated article is coherent. Print the updated JSON data as well, using double quotes and not single quotes. Do not provide any additional information except for the changed article and the changed JSON dataset.
 
     The paraphrased article should begin and end with an asterisk sign '*'.
     """
 
-
-change_one_information = {"fact_transformation_abdul": """ You have an article. {general_information}:  
+GENERAL_CHANGE_ONE_INFORMATION = {
+    "fact_transformation_abdul": """ You have an article. {general_information}:  
 BEGINNING OF THE ARTICLE
     {article}
 END OF THE ARTICLE
@@ -77,9 +138,9 @@ The following facts have already been extracted from this article: {facts}.
 
 1. Please replace the fact {change_topic_1} in this article with a different value. 
 2. Provide me with the same JSON file, but ensure that the value of {change_topic_1} is updated to the new value you used.
-3. Please give me the news article with replaced value and include the phrases "BEGINNING OF THE ARTICLE" and "END OF THE ARTICLE" at the beginning and end of the paraphrased version, respectively."""
-
-, "paraphrase_abdul": """You have an article. {general_information}:  
+3. Please give me the news article with replaced value and include the phrases "BEGINNING OF THE ARTICLE" and "END OF THE ARTICLE" at the beginning and end of the paraphrased version, respectively.""",
+    
+    "paraphrase_abdul": """You have an article. {general_information}:  
 BEGINNING OF THE ARTICLE
     {article}
 END OF THE ARTICLE
@@ -88,9 +149,9 @@ The following facts have already been extracted from this article: {facts}.
 
 1. Please replace the fact {change_topic_1} in this article with a different value. 
 2. Provide me with the same JSON file, but ensure that the value of {change_topic_1} is updated to the new value you used.
-3. After making the replacement, please paraphrase the news article and include the phrases "BEGINNING OF THE ARTICLE" and "END OF THE ARTICLE" at the beginning and end of the paraphrased version, respectively."""
+3. After making the replacement, please paraphrase the news article and include the phrases "BEGINNING OF THE ARTICLE" and "END OF THE ARTICLE" at the beginning and end of the paraphrased version, respectively.""",
 
-, "summarize_abdul": """You have an article. {general_information}:  
+    "summarize_abdul": """You have an article. {general_information}:  
 BEGINNING OF THE ARTICLE
     {article}
 END OF THE ARTICLE
@@ -99,8 +160,9 @@ The following facts have already been extracted from this article: {facts}.
 
 1. Please replace the fact {change_topic_1} in this article with a different value. 
 2. Provide me with the same JSON file, but ensure that the value of {change_topic_1} is updated to the new value you used.
-3. After making the replacement, please summarize the news article and include the phrases "BEGINNING OF THE ARTICLE" and "END OF THE ARTICLE" at the beginning and end of the paraphrased version, respectively."""
-, "paraphrase": """You are a scientist analyzing articles from the well known scientific dataset FA-KES. Here is an article:
+3. After making the replacement, please summarize the news article and include the phrases "BEGINNING OF THE ARTICLE" and "END OF THE ARTICLE" at the beginning and end of the paraphrased version, respectively.""",
+
+    "paraphrase": """You are a scientist analyzing articles from the well known scientific dataset FA-KES. Here is an article:
 
     BEGINNING OF THE ARTICLE
     {article}
@@ -113,9 +175,9 @@ The following facts have already been extracted from this article: {facts}.
     Please, follow the instructions:
     Point 1: {change_data_1}
     Point 2: Create a new JSON file, which is the same as the old one, with the exception of {change_topic_1}, which is given new information given in Point 1. JSON file should be displayed in standard notation, with use of double and not single quotes, and should contain all the key values as the original one.
-    Point 3: Paraphrase a new article in which you will change the information for {change_topic_1} according to decision made in Point 1. Ensure that all occurrences of {change_topic_1} are changed. You must preserve all other information from article. This article should begin with the phrase "BEGINNING OF THE ARTICLE" and end with "END OF THE ARTICLE". Make sure you include those phrases.
-    """
-, "paraphrase_aggressive": """You are an journalist with news articles. {general_information} Here is an article:
+    Point 3: Paraphrase a new article in which you will change the information for {change_topic_1} according to decision made in Point 1. Ensure that all occurrences of {change_topic_1} are changed. You must preserve all other information from article. This article should begin with the phrase "BEGINNING OF THE ARTICLE" and end with "END OF THE ARTICLE". Make sure you include those phrases.""",
+
+    "paraphrase_aggressive": """You are an journalist with news articles. {general_information} Here is an article:
 
     BEGINNING OF THE ARTICLE
     {article}
@@ -129,8 +191,8 @@ The following facts have already been extracted from this article: {facts}.
     Point 1: {change_data_1}
     Point 2: Create a new JSON file, which is the same as the old one, with the exception of {change_topic_1}, which is given new information given in Point 1. JSON file should be displayed in standard notation, with use of double and not single quotes, and should contain all the key values as the original one.
     Point 3: Paraphrase a new article in which you will change the information for {change_topic_1} according to decision made in Point 1. Ensure that all occurrences of {change_topic_1} are changed and included in new article. You must preserve all other information from article. This article should begin with the phrase "BEGINNING OF THE ARTICLE" and end with "END OF THE ARTICLE". Make sure you include those phrases.
-    Point 4: Check again the newly created article. All occurrences of {change_topic_1} must be changed, and details from original article must be preserved in a consistent way. If you spot any problem paraphrase article once more.
-    """ ,
+    Point 4: Check again the newly created article. All occurrences of {change_topic_1} must be changed, and details from original article must be preserved in a consistent way. If you spot any problem paraphrase article once more.""",
+
     "summarize_aggressive": """You are an journalist with news articles. {general_information} Here is an article:
 
     BEGINNING OF THE ARTICLE
@@ -145,13 +207,8 @@ The following facts have already been extracted from this article: {facts}.
     Point 1: {change_data_1}
     Point 2: Create a new JSON file, which is the same as the old one, with the exception of {change_topic_1}, which is given new information given in Point 1. JSON file should be displayed in standard notation, with use of double and not single quotes, and should contain all the key values as the original one.
     Point 3: Summarize the new article in which you will change the information for {change_topic_1} according to decision made in Point 1. Ensure that all occurrences of {change_topic_1} are changed and included in new summarization. You must preserve all other facts mentioned in the list of facts. This summarization should begin with the phrase "BEGINNING OF THE ARTICLE" and end with "END OF THE ARTICLE". Make sure you include those phrases.
-    Point 4: Check again the newly created summarization. All occurrences of {change_topic_1} must be changed, and content from original article must be preserved in a consistent way. If you spot any problem summarize the article once more.
-    """
+    Point 4: Check again the newly created summarization. All occurrences of {change_topic_1} must be changed, and content from original article must be preserved in a consistent way. If you spot any problem summarize the article once more."""
 }
-
-
-
-
 
 # imports 
 # import fake_detector
@@ -268,7 +325,7 @@ def generate_aggressive_prompts(topics):
         common_examples = topic["Common examples"]
         
         # Construct the detailed instruction
-        changing_orders = CHANGES_AGGRESSIVE.format(name_of_fact=name_of_fact, description_of_fact=description_of_fact, common_examples=common_examples)
+        changing_orders = GENERAL_CHANGES_AGGRESSIVE.format(name_of_fact=name_of_fact, description_of_fact=description_of_fact, common_examples=common_examples)
         
         changes_aggressive.append({"Name of fact": name_of_fact, "Changing orders": changing_orders})
 
@@ -350,7 +407,7 @@ def generate_facts_normal(article_content, name_of_the_model, print_generated_te
     Outputs
     A list of dictionaries containing the extracted facts in JSON format, or None if no facts are found.
     """    
-    prompt = transform_topics_to_fact_extraction_prompt(TOPICS, GENERAL_INFORMATION, article_content)
+    prompt = transform_topics_to_fact_extraction_prompt(GENERAL_TOPICS, GENERAL_INFORMATION, article_content)
     print(prompt)
     prompt_variables = {}
     generated = model_response(name_of_the_model, prompt, prompt_variables)
@@ -393,14 +450,14 @@ def generate_facts_one_by_one(article_content, name_of_the_model, print_generate
     json_list: A list containing a dictionary of extracted facts, or None if any fact extraction failed.
     """
     json_dict = {}    
-    for topic in TOPICS:
+    for topic in GENERAL_TOPICS:
         prompt_variables = {
             'article': article_content,
             'topic': topic["Name of fact"],
             'topic_content': topic["Description of fact"],
             'general_information': GENERAL_INFORMATION,
         }
-        generated = model_response(name_of_the_model, prompt_for_one_by_one_fact_extraction_concise_version, prompt_variables)
+        generated = model_response(name_of_the_model, GENERAL_PROMPT_FOR_ONE_BY_ONE_FACT_EXTRACTION_CONCISE_VERSION, prompt_variables)
 
         if print_generated_text == True:
             print(f"Generated fact on topic {topic['Name of fact']}:\n", generated)
@@ -464,7 +521,7 @@ def generate_facts(true_articles, name_of_the_model, size_of_sample, type_of_gen
 #main functions
 
 
-def extract_and_change_articles(true_articles, name_of_the_model, size_of_sample=5, type_of_generation = "normal", change_of_article = "paraphrase_abdul", print_comments = False):
+def extract_and_change_articles(true_articles, name_of_the_model, size_of_sample=5, type_of_generation = "normal", change_of_article = "paraphrase_abdul", print_comments = False, testing = False):
     """
     Summary
     This function extracts and modifies articles from a given dataset using a specified model. It samples a subset of articles, generates facts, and changes specific topics within the articles.
@@ -498,8 +555,9 @@ def extract_and_change_articles(true_articles, name_of_the_model, size_of_sample
         article_content = list(true_articles['article_content'])[index]
         if print_comments:
             print("Original article: ", article_content)
-
-        if type_of_generation == "normal":
+        if testing:
+            json_list = testing_dictionary['fact_extraction']
+        elif type_of_generation == "normal":
             json_list = generate_facts_normal(article_content, name_of_the_model, print_comments)
         elif type_of_generation == "one_by_one":
             json_list = generate_facts_one_by_one(article_content, name_of_the_model, print_comments)
@@ -513,7 +571,7 @@ def extract_and_change_articles(true_articles, name_of_the_model, size_of_sample
         
                 print("THIS IS DICTIONARY THAT WAS EXTRACTED")
                 print_readable_dict(json_dict)
-                CHANGE = generate_aggressive_prompts(TOPICS)
+                CHANGE = generate_aggressive_prompts(GENERAL_TOPICS)
                 topic_to_change = random.sample(CHANGE, 2)
                 print("We will change topics:", topic_to_change[0]["Name of fact"], " and ", topic_to_change[1]["Name of fact"])
 
@@ -525,7 +583,10 @@ def extract_and_change_articles(true_articles, name_of_the_model, size_of_sample
                     'change_data_1': topic_to_change[0]["Changing orders"],
                     'general_information': GENERAL_INFORMATION,
                 }
-                generated = model_response(name_of_the_model, change_one_information[change_of_article], prompt_variables)
+                if testing:
+                    generated = testing_dictionary['article_generation']
+                else:
+                    generated = model_response(name_of_the_model, GENERAL_CHANGE_ONE_INFORMATION[change_of_article], prompt_variables)
                 
                 changed_json = find_json(generated)
                 changed_json = changed_json[0] if changed_json else None
@@ -546,7 +607,10 @@ def extract_and_change_articles(true_articles, name_of_the_model, size_of_sample
                         'change_data_1': topic_to_change[1]["Changing orders"],
                         'general_information': GENERAL_INFORMATION,
                     }
-                    generated = model_response(name_of_the_model, change_one_information[change_of_article], prompt_variables)
+                    if testing:
+                        generated = testing_dictionary['article_generation']
+                    else:
+                        generated = model_response(name_of_the_model, GENERAL_CHANGE_ONE_INFORMATION[change_of_article], prompt_variables)
               
                     twice_changed_json = find_json(generated)
                     twice_changed_json = twice_changed_json[0] if twice_changed_json else None
@@ -562,7 +626,7 @@ def extract_and_change_articles(true_articles, name_of_the_model, size_of_sample
     results = pd.DataFrame(results, columns = column_names)
     return results
 
-def change_articles_with_fact_already_generated(articles_with_facts, name_of_the_model, size_of_sample=5, change_of_article = "paraphrase", print_comments = False):
+def change_articles_with_fact_already_generated(articles_with_facts, name_of_the_model, size_of_sample=5, change_of_article = "paraphrase", print_comments = False, testing = False):
     """
     Summary
     Function is meant to be used together with generate_facts. It processes a sample of articles by applying two rounds of information changes using a specified language model. It modifies specific topics within the articles and their associated JSON data, then returns the results. 
@@ -615,8 +679,10 @@ def change_articles_with_fact_already_generated(articles_with_facts, name_of_the
             'change_data_1': topic_to_change[1]["Changing orders"],
             'general_information': GENERAL_INFORMATION,
         }
-        generated = model_response(name_of_the_model, change_one_information[change_of_article], prompt_variables)
-
+        if testing:
+            generated = testing_dictionary['article_generation']
+        else:
+            generated = model_response(name_of_the_model, GENERAL_CHANGE_ONE_INFORMATION[change_of_article], prompt_variables)
         changed_json = find_json(generated)
         
         changed_json = changed_json[0] if changed_json else None
@@ -636,8 +702,12 @@ def change_articles_with_fact_already_generated(articles_with_facts, name_of_the
                 'change_data_1': topic_to_change[1]["Changing orders"],
                 'general_information': GENERAL_INFORMATION,
             }
-            generated = model_response(name_of_the_model, change_one_information[change_of_article], prompt_variables)
- 
+            if testing:
+                generated = testing_dictionary['article_generation']
+            else:
+                generated = model_response(name_of_the_model, GENERAL_CHANGE_ONE_INFORMATION[change_of_article], prompt_variables)
+            changed_json = find_json(generated)
+
             twice_changed_json = find_json(generated)
             if twice_changed_json:
                 twice_changed_json = twice_changed_json[0]
@@ -730,7 +800,7 @@ def change_articles_with_fact_already_generated(articles_with_facts, name_of_the
     
     return results
 
-def extract_and_change_articles_with_labeling_added(true_articles, name_of_the_model, size_of_sample=5, type_of_generation = "one_by_one", change_of_article = "paraphrase_abdul", print_comments = False):
+def extract_and_change_articles_with_labeling_added(true_articles, name_of_the_model, size_of_sample=5, type_of_generation = "one_by_one", change_of_article = "paraphrase_abdul", print_comments = False, testing = False):
     """
     Summary
     This function extract_and_change_articles_with_labeling_added processes a sample of articles to generate and modify facts using a specified model. It iteratively changes topics within the articles and evaluates the quality of these changes using a fake detector.
@@ -765,8 +835,9 @@ def extract_and_change_articles_with_labeling_added(true_articles, name_of_the_m
         if print_comments:
             print("Original article: ", article_content)
 
-
-        if type_of_generation == "normal":
+        if testing:
+            json_list = testing_dictionary['fact_extraction']
+        elif type_of_generation == "normal":
             json_list = generate_facts_normal(article_content, name_of_the_model, print_comments)
         elif type_of_generation == "one_by_one":
             json_list = generate_facts_one_by_one(article_content, name_of_the_model, print_comments)
@@ -786,7 +857,7 @@ def extract_and_change_articles_with_labeling_added(true_articles, name_of_the_m
                 while quality_of_generation == False and number_of_trials <= 3:
                     number_of_trials += 1
 
-                    topic_to_change = random.sample(generate_aggressive_prompts(TOPICS), 3)
+                    topic_to_change = random.sample(generate_aggressive_prompts(GENERAL_TOPICS), 3)
                     print("We will change topics:", topic_to_change[0]["Name of fact"], ", ", topic_to_change[1]["Name of fact"], " and ", topic_to_change[2]["Name of fact"])
 
                     prompt_variables = {
@@ -796,7 +867,10 @@ def extract_and_change_articles_with_labeling_added(true_articles, name_of_the_m
                         'change_data_1': topic_to_change[0]["Changing orders"],
                         'general_information': GENERAL_INFORMATION,
                     }
-                    generated = model_response(name_of_the_model, change_one_information[change_of_article], prompt_variables)
+                    if testing:
+                        generated = testing_dictionary['article_generation']
+                    else:
+                        generated = model_response(name_of_the_model, GENERAL_CHANGE_ONE_INFORMATION[change_of_article], prompt_variables)
                     
 
                     changed_json_list = find_json(generated)
@@ -810,7 +884,7 @@ def extract_and_change_articles_with_labeling_added(true_articles, name_of_the_m
                             print("EXTRACTED JSON: ", changed_json)
                     else: 
                         extracted = {"fake_article": changed_article, "true_json_file": json_dict, "topic": topic_to_change[0]["Name of fact"]} 
-                        labeling_result = fake_detector.fake_detect_only_for_one_example(extracted, print_comments=print_comments)
+                        labeling_result = General_news_labeling.fake_detect_only_for_one_example(extracted, print_comments=print_comments, testing = True)
                         if labeling_result[0] == 1 and labeling_result[1] == 1: #False article was labeled in correct way
                             quality_of_generation = True
                             print("Quality of generation was good")
@@ -835,7 +909,10 @@ def extract_and_change_articles_with_labeling_added(true_articles, name_of_the_m
                             'change_data_1': topic_to_change[0]["Changing orders"],
                             'general_information': GENERAL_INFORMATION,
                         }
-                        generated = model_response(name_of_the_model, change_one_information[change_of_article], prompt_variables)
+                        if testing:
+                            generated = testing_dictionary['article_generation']
+                        else:
+                            generated = model_response(name_of_the_model, GENERAL_CHANGE_ONE_INFORMATION[change_of_article], prompt_variables)
                         
             
                         twice_changed_json = find_json(generated)
@@ -847,7 +924,7 @@ def extract_and_change_articles_with_labeling_added(true_articles, name_of_the_m
                                 print("Failure in detection.")
                         else: 
                             extracted = {"fake_article": twice_changed_article, "true_json_file": changed_json, "topic": topic_to_change[1]["Name of fact"]}
-                            labeling_result = fake_detector.fake_detect_only_for_one_example(extracted, print_comments=print_comments)
+                            labeling_result = General_news_labeling.fake_detect_only_for_one_example(extracted, print_comments=print_comments, testing = True)
                         if labeling_result[0] == 1 and labeling_result[1] == 1: #False article was labeled in correct way
                             quality_of_generation = True
                             print("Quality of generation was good")
@@ -871,8 +948,11 @@ def extract_and_change_articles_with_labeling_added(true_articles, name_of_the_m
                                 'change_data_1': topic_to_change[0]["Changing orders"],
                                 'general_information': GENERAL_INFORMATION,
                             }
-                            generated = model_response(name_of_the_model, change_one_information[change_of_article], prompt_variables)
-                            
+                            if testing:
+                                generated = testing_dictionary['article_generation']
+                            else:
+                                generated = model_response(name_of_the_model, GENERAL_CHANGE_ONE_INFORMATION[change_of_article], prompt_variables)
+                        
                             third_changed_json = find_json(generated)
                             third_changed_json = third_changed_json[0] if third_changed_json else None
                             third_changed_article = extract_last_article(generated)
@@ -882,7 +962,7 @@ def extract_and_change_articles_with_labeling_added(true_articles, name_of_the_m
                                     print("Failure in detection.")
                             else: 
                                 extracted = {"fake_article": third_changed_article, "true_json_file": twice_changed_json, "topic": topic_to_change[2]["Name of fact"]}
-                                labeling_result = fake_detector.fake_detect_only_for_one_example(extracted, print_comments=print_comments)
+                                labeling_result = General_news_labeling.fake_detect_only_for_one_example(extracted, print_comments=print_comments, testing = True)
                                 if labeling_result[0] == 1 and labeling_result[1] == 1: #False article was labeled in correct way
                                     quality_of_generation = True
                                     print("Quality of generation was good")
