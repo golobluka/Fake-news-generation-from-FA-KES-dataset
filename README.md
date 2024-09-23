@@ -1,4 +1,4 @@
-# Fake-news-generation-from-FAK-ES-dataset
+# Fake-news-generation-from-FA-KES-dataset
 This is the work I did while working as a student in IJS (Inštitut Jožeta Štefana). The intent is to use LLMs to generate false synthetic news articles, by using language understanding of LLMs.
 
 There are some privacy issues related to publicizing my project's source code. Because of this, **two Python files that provide prompts and basic source code were removed** (the files `generating_new_article.py` and `fake_datector.py`) , and only the results are present. This might change in the future, but for now, everybody who wants the main source code needs to contact me.
