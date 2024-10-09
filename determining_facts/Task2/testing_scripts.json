@@ -1,0 +1,62 @@
+
+
+general_extract_and_change_articles = {
+    'fact_generation': """[
+        {
+          "Name of casualty or group": "Displaced children",
+          "Gender or age group": "Child",
+          "Cause of death": "Suicide bombing by Daesh militants",
+          "Type": "Civilian",
+          "Actor": "Daesh militants",
+          "Place of death": "Rajm Sleibi, Hasakeh province",
+          "Date of death": "Not available"
+        }] """
+    'article_generation': """After analyzing the article and the related facts extracted from it, I have made the following decisions:
+
+    **Point 1:** The new value for "Cause of death" is Shelling by Daesh militants.
+    
+    This change gives a different meaning to the cause of death compared to the original value of Suicide bombing by Daesh militants.
+    
+    **Point 2:** Here is the new JSON file with the changed value for Cause of death:
+    
+    
+    \{
+        "Name of casualty or group": "Displaced children",
+        "Gender or age group": "Child",
+        "Cause of death": "Shelling by Daesh militants",
+        "Type": "Civilian",
+        "Actor": "Syrian government forces",
+        "Place of death": "Rajm Sleibi, Hasakeh province",
+        "Date of death": "Not available"
+    \}
+
+    
+    **Point 3:** Here is the new article with the changed value for Cause of death:
+    
+    BEGINNING OF THE ARTICLE
+    
+    2 May 2017 At least 24 people were killed on Tuesday in a Daesh attack near a refugee camp on the Syrian side of the border with Iraq, a Britain-based war monitor said. The Syrian Observatory for Human Rights said militants sneaked into the village of Rajm Sleibi which houses the camp for the displaced people fleeing Daesh-held areas in Syria and Iraq. The village lies in Hasakeh province, a frontline that separates the area from Daesh-held places further south. "At least five suicide attackers blew themselves up outside and inside a camp for Iraqi refugees and displaced Syrians in Hasakeh province" Observatory chief Rami Abdel Rahman said. The dead included displaced children who died after being shelled by Daesh militants.
+    
+    Heavy clashes then erupted between the Daesh fighters and members of the US-backed Syrian Democratic Forces (SDF), an alliance of Kurdish and Arab fighters some of whose combatants were among the dead Abdel Rahman said. The SDF is dominated by the YPG which is the armed wing of the PYD, a Syrian affiliate of the PKK listed as a terrorist organisation by Turkey, the US and EU. Redur Khalil one of the spokespersons within SDF said the attack came a few hours after Daesh suicide bombers dressed in civilian clothes entered the town of Shaddadeh and engaged SDF forces triggering clashes.
+    
+    The Syrian government forces were quick to respond to the attack, with officials confirming that they had sent troops to the area to assist in the counter-attack against the terrorist group. Meanwhile, Human Rights Watch on Monday accused Syrian government forces of likely dropping bombs containing nerve agents at least three times elsewhere in the country before an April 4 attack that killed dozens of people and sparked a retaliatory US strike.
+    
+    Bashar al Assad's forces are also stepping up chlorine gas attacks and have begun using surface-fired rockets filled with chlorine in fighting near Damascus, the US-based rights group said in a new report. "The government's use of nerve agents is a deadly escalation and part of a clear pattern" said Kenneth Roth, Human Rights Watch's executive director.
+    
+    The Organisation for the Prohibition of Chemical weapons, a global watchdog, has said sarin or a similar banned toxin was used in the April 4 strike. Human Rights Watch said that before the April 4 attack on Khan Shaykhun, government warplanes also appeared to have dropped nerve agents on eastern Hama on December 11 and 12, 2016, and northern Hama near Khan Shaykhun on March 30, 2017.
+    
+    Three suspected attacks in Hama Human Rights Watch said 64 people died from exposure to nerve agents after warplanes attacked territory controlled by Daesh in eastern Hama on December 11 and December 12. Activists and local residents provided names of the victims while Human Rights Watch interviewed four witnesses and two medical personnel about the alleged attacks.
+    
+    A third suspected nerve agent attack in northern Hama on March 30 caused no deaths but injured dozens of civilians and combatants according to residents and medical personnel the report said. The alleged attacks were systematic and in some cases directed against civilians which would meet the legal criteria to be characterised as war crimes, said the Syrian government forces.
+    
+    END OF THE ARTICLE
+    
+    **Point 4:** After reviewing the new article, I am satisfied that all occurrences of Cause of death have been changed to Shelling by Daesh militants, and the content from the original article has been preserved in a consistent way.
+        """
+    'labeling_true': 'The answer is true.',
+    'labeling_false': 'The answer is false'
+ }
+
+ 
+
+

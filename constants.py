@@ -96,33 +96,33 @@ GENERAL_COMMON_EXAMPLES = 'Common examples'
 
 #General_news_labeling constants
 
-GENERAL_CASUALTY_NAME = 'Name of casualty or group'
-GENERAL_CASUALTY_NAME_DESCRIPTION = ' represents the casualties names or the names of the groups associated with the casualties.'
-GENERAL_CASUALTY_NAME_EXAMPLES = 'men, solders, children'
+FACT1_NAME = 'Turnout'
+FACT1_DESCRIPTION = 'The number of people who take part in election.'
+FACT1_EXAMPLES = '1000, 10k'
 
-GENERAL_GENDER_AGE_GROUP = 'Gender or age group'
-GENERAL_GENDER_AGE_GROUP_DESCRIPTION = ' of casualty indicates if the casualties are male or female, or specify their age group .'
-GENERAL_GENDER_AGE_GROUP_EXAMPLES = 'Male, Female, Child, Adult, Senior'
+FACT2_NAME = 'Gender or age group'
+FACT2_DESCRIPTION = ' of casualty indicates if the casualties are male or female, or specify their age group .'
+FACT2_EXAMPLES = 'Male, Female, Child, Adult, Senior'
 
-GENERAL_CAUSE_OF_DEATH = 'Cause of death'
-GENERAL_CAUSE_OF_DEATH_DESCRIPTION = ' specifies the weapons used by the aggressor (e.g., shooting, shelling, chemical weapons, etc.)'
-GENERAL_CAUSE_OF_DEATH_EXAMPLES = 'Shooting, Shelling, Chemical weapons'
+FACT3_NAME = 'Cause of death'
+FACT3_DESCRIPTION = ' specifies the weapons used by the aggressor (e.g., shooting, shelling, chemical weapons, etc.)'
+FACT3_EXAMPLES = 'Shooting, Shelling, Chemical weapons'
 
-GENERAL_TYPE_DESCRIPTION = 'Type'
-GENERAL_TYPE_DESCRIPTION_FACT = ' of casualty classifies the casualties as a civilian or non-civilian (e.g., military personnel are non-civilians).'
-GENERAL_TYPE_EXAMPLES = 'Civilian, Non-civilian'
+FACT4_NAME = 'Type'
+FACT4_DESCRIPTION = ' of casualty classifies the casualties as a civilian or non-civilian (e.g., military personnel are non-civilians).'
+FACT4_EXAMPLES = 'Civilian, Non-civilian'
 
-GENERAL_ACTOR_DESCRIPTION = 'Actor'
-GENERAL_ACTOR_DESCRIPTION_FACT = ' identifies the actors responsible for the incident, such as rebel groups, Russian forces, ISIS, the Syrian army, U.S. military, etc.'
-GENERAL_ACTOR_EXAMPLES = 'Rebel groups, Russian forces, ISIS'
+FACT5_NAME = 'Actor'
+FACT5_DESCRIPTION = ' identifies the actors responsible for the incident, such as rebel groups, Russian forces, ISIS, the Syrian army, U.S. military, etc.'
+FACT5_EXAMPLES = 'Rebel groups, Russian forces, ISIS'
 
-GENERAL_PLACE_OF_DEATH = 'Place of death'
-GENERAL_PLACE_OF_DEATH_DESCRIPTION = ' specifies the locations where the attacks occurred (e.g., Aleppo, Damascus, Homs, Idlib, Raqqa, Daraa, Deir ez-Zor, Qamishli, Palmyra, etc.).'
-GENERAL_PLACE_OF_DEATH_EXAMPLES = 'Aleppo, Damascus, Homs'
+FACT6_NAME = 'Place of death'
+FACT6_DESCRIPTION = ' specifies the locations where the attacks occurred (e.g., Aleppo, Damascus, Homs, Idlib, Raqqa, Daraa, Deir ez-Zor, Qamishli, Palmyra, etc.).'
+FACT6_EXAMPLES = 'Aleppo, Damascus, Homs'
 
-GENERAL_DATE_OF_DEATH = 'Date of death'
-GENERAL_DATE_OF_DEATH_DESCRIPTION = ' provides the dates when the attacks occurred.'
-GENERAL_DATE_OF_DEATH_EXAMPLES = '2021-01-01, 2022-06-15'
+FACT7_NAME = 'Date of death'
+FACT7_DESCRIPTION = ' provides the dates when the attacks occurred.'
+FACT7_EXAMPLES = '2021-01-01, 2022-06-15'
 
 
 
