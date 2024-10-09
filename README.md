@@ -3,7 +3,7 @@ This is the work I did while working as a student in IJS (Inštitut Jožeta Šte
 
 
 
-The articles in `Task1` are generated from FA-KES, a fake news dataset about the Syrian war. Then this procedure was extended to arbitrary news articles in `Task2` folder. With the functions in `fact_extraction_and_manipulation` you can make synthetic articles with changed facts. Look at [my paper][https://aile3.ijs.si/dunja/SiKDD2024/Papers/IS2024_-_SIKDD_2024_paper_13.pdf] for more information.
+The articles in `Task1` are generated from FA-KES, a fake news dataset about the Syrian war. Then this procedure was extended to arbitrary news articles in `Task2` folder. With the functions in `fact_extraction_and_manipulation` you can make synthetic articles with changed facts. Look at [my paper](https://aile3.ijs.si/dunja/SiKDD2024/Papers/IS2024_-_SIKDD_2024_paper_13.pdf) for more information.
 
 The three basic steps in the `Task1` are:
 
