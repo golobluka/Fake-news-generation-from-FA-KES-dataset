@@ -1,5 +1,5 @@
 # Fake-news-generation-from-FA-KES-dataset
-This is the work I did while working as a student in IJS (Inštitut Jožeta Štefana). The intent is to use LLMs to generate false synthetic news articles, by using language understanding of LLMs.
+This is the work done while working as a student in IJS (Inštitut Jožeta Štefana). The intent is to use LLMs to generate false synthetic news articles, by using language understanding of LLMs.
 
 
 
